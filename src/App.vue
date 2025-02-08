@@ -1,14 +1,13 @@
 <template>
-     <router-view></router-view>
+  <router-view></router-view>
 </template>
 
 <style lang="scss">
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  cursor: pointer;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
 }
 </style>
+

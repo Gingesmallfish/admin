@@ -33,9 +33,5 @@ const handleLogout = async () => {
 </script>
 
 <style scoped lang="scss">
-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 </style>

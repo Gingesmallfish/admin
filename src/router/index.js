@@ -1,10 +1,11 @@
 // router/index.js
-import { createRouter, createWebHashHistory } from 'vue-router';
-import Login from '@/views/Login.vue'; // 假设登录页面组件
-import Home from '@/views/home/Home.vue'; // 假设主页页面组件
-import Register from '@/views/Register.vue'; // 假设注册页面组件
+import {createRouter, createWebHashHistory} from 'vue-router';
+import Login from '@/views/Login.vue'; // 登录页面组件
+import Home from '@/views/home/Home.vue'; // 主页页面组件
+import Register from '@/views/Register.vue'; // 注册页面组件
+import NotFound from '@/NotFound/404.vue';
 import store from '@/store';
-import { ElMessage } from 'element-plus';
+import {ElMessage} from 'element-plus';
 
 const routes = [
   {
@@ -27,7 +28,14 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound
   }
+
 ];
 
 const router = createRouter({

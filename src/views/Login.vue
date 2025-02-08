@@ -1,8 +1,10 @@
 <template>
+
   <div class="Particles">
     <Particles/>
   </div>
-  <div class="login-container">
+  <div class="center">
+    <div class="login-container">
     <div class="login-header">
       <h1>教务管理系统登录</h1>
     </div>
@@ -61,14 +63,16 @@
         <el-link @click="goToRegister">没有账号？去注册</el-link>
       </el-form-item>
     </el-form>
+    </div>
   </div>
+
 </template>
 
 <script setup>
 import {onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
 import {getCaptcha, login} from '@/api/auth';
-import {Lock, Unlock, User,  View, Hide} from '@element-plus/icons-vue';
+import {Lock, Unlock, User} from '@element-plus/icons-vue';
 import Particles from "@/components/Particles.vue";
 import {ElMessage} from "element-plus";
 import store from '@/store';
@@ -180,13 +184,21 @@ onMounted(() => {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -1;
+  z-index: -9;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-.login-container {
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  cursor: pointer;
+
+
+  .login-container {
   width: 400px;
   margin: 100px auto;
   padding: 30px;
@@ -231,5 +243,8 @@ onMounted(() => {
   .login-button {
     width: 100%;
   }
+  }
 }
+
+
 </style>
