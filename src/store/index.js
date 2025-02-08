@@ -1,34 +1,30 @@
+// src/store/index.js
 import { createStore } from 'vuex';
 
-const store = createStore({
-    state: {
-        user: null,
-        token: null
+export default createStore({
+  state: {
+    token: localStorage.getItem('token') || '',
+  },
+  mutations: {
+    SET_TOKEN(state, token) {
+      state.token = token;
+      localStorage.setItem('token', token);
     },
-    mutations: {
-        setUser(state, user) {
-            state.user = user;
-        },
-        setToken(state, token) {
-            state.token = token;
-        }
+    CLEAR_TOKEN(state) {
+      state.token = '';
+      localStorage.removeItem('token');
     },
-    actions: {
-        async login({ commit }, formData) {
-            try {
-                const { data } = await login(formData);
-                if (data.success) {
-                    commit('setUser', { username: formData.username });
-                    commit('setToken', data.token);
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error(error);
-                return false;
-            }
-        }
-    }
+  },
+  actions: {
+    setToken({ commit }, token) {
+      commit('SET_TOKEN', token);
+    },
+    clearToken({ commit }) {
+      commit('CLEAR_TOKEN');
+    },
+  },
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    token: (state) => state.token,
+  },
 });
-
-export default store;
