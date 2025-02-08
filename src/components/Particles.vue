@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="particles-container">
     <Particles
       id="tsparticles"
       :options="options"

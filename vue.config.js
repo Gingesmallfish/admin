@@ -4,15 +4,15 @@ module.exports = defineConfig({
   devServer: {
     port: 8080,
     host: 'localhost',
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:3000', // 这里写你的 API 服务器地址
-    //     changeOrigin: true,
-    //     pathRewrite: {
-    //       '^/api': ''
-    //     }
-    //   }
-    // }
+    open: true,
   },
-  // 修改端
+
+  chainWebpack: config => {
+    config.plugin('define').tap(args => {
+      args[0]['__VUE_PROD_HYDRATION_MISMATCH_DETAILS__'] = false;
+      args[0]['__VUE_OPTIONS_API__'] = true;
+      args[0]['__VUE_PROD_DEVTOOLS__'] = false;
+      return args;
+    });
+  }
 })

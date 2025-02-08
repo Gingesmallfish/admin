@@ -6,7 +6,7 @@
     <div class="register-header">
       <h1>教务管理系统注册</h1>
     </div>
-    <el-form :model="registerForm" :rules="RegisterRules" ref="formRef" label-width="100px" class="register-form">
+    <el-form :model="registerForm" :rules="RegisterRules" ref="formRef" label-width="80px" class="register-form">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="registerForm.username" placeholder="请输入用户名">
           <template #prefix>
@@ -231,6 +231,7 @@ onMounted(() => {
   }
 
   .register-form {
+    margin-right: 30px;
     .el-form-item {
       margin-bottom: 20px;
     }

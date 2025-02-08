@@ -1,47 +1,40 @@
-// src/api/axios.js
 import axios from 'axios';
+import store from '@/store';
 
-const service = axios.create({
+const http = axios.create({
   baseURL: 'http://localhost:3000',
-  timeout: 5000,
   headers: {
-    'Content-Type': 'application/json;charset=UTF-8',
+    'Content-Type': 'application/json',
   },
-  // 携带cookie
-  withCredentials: true
+  withCredentials: true, // 确保携带 Cookie
 });
 
-// 添加请求拦截器
-service.interceptors.request.use(function (config) {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, function (error) {
-  return Promise.reject(error);
-});
-
-// 添加响应拦截器
-service.interceptors.response.use(function (response) {
-  return response;
-}, function (error) {
-  if (error.response) {
-    switch (error.response.status) {
-      case 401:
-        window.location.href = '/login';
-        break;
-      case 404:
-        console.error('请求资源未找到');
-        break;
-      case 500:
-        console.error('服务器内部错误');
-        break;
-      default:
-        console.error('请求出错，请稍后重试');
+// 请求拦截器
+http.interceptors.request.use(
+  (config) => {
+    const token = store.getters.isAuthenticated ? store.state.token : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return Promise.reject(error);
-});
+);
 
-export default service;
+// 响应拦截器
+http.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      store.dispatch('logout');
+      router.push('/login');
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default http;

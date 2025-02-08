@@ -1,30 +1,42 @@
-// src/store/index.js
+// store/index.js
 import { createStore } from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
 
-export default createStore({
+const store = createStore({
   state: {
-    token: localStorage.getItem('token') || '',
+    token: null,
+    user: null
   },
   mutations: {
-    SET_TOKEN(state, token) {
+    login(state, { token, user }) {
       state.token = token;
-      localStorage.setItem('token', token);
+      state.user = user;
     },
-    CLEAR_TOKEN(state) {
-      state.token = '';
-      localStorage.removeItem('token');
-    },
+    logout(state) {
+      state.token = null;
+      state.user = null;
+    }
   },
   actions: {
-    setToken({ commit }, token) {
-      commit('SET_TOKEN', token);
+    login({ commit }, { token, user }) {
+      commit('login', { token, user });
     },
-    clearToken({ commit }) {
-      commit('CLEAR_TOKEN');
-    },
+    logout({ commit }) {
+      commit('logout');
+    }
   },
   getters: {
-    isAuthenticated: (state) => !!state.token,
-    token: (state) => state.token,
+    isLoggedIn(state) {
+      return !!state.token;
+    }
   },
+  // 持久化存储
+  plugins: [
+      createPersistedState({
+        // 指定要持久化的 state 字段
+        paths: ['token', 'user']
+      })
+  ]
 });
+
+export default store;

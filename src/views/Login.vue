@@ -6,9 +6,12 @@
     <div class="login-header">
       <h1>教务管理系统登录</h1>
     </div>
-    <el-form :model="loginForm" :rules="LoginRules" :size="'large'"  ref="formRef" label-width="80px" class="login-form">
+    <el-form :model="loginForm" :rules="LoginRules" ref="formRef" label-width="70px" class="login-form">
       <el-form-item label="用户名" prop="username">
-        <el-input v-model="loginForm.username"  placeholder="请输入用户名">
+        <el-input
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+        >
           <template #prefix>
             <el-icon>
               <User/>
@@ -17,10 +20,20 @@
         </el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="loginForm.password" type="password" placeholder="请输入密码">
+        <el-input
+            v-model="loginForm.password"
+            :type="passwordType"
+            placeholder="请输入密码"
+            @click:append="togglePasswordVisibility"
+        >
           <template #prefix>
             <el-icon>
               <Lock/>
+            </el-icon>
+          </template>
+          <template #suffix>
+            <el-icon @click="togglePasswordVisibility" >
+              <component :is="passwordVisible ? 'View' : 'Hide'" style="cursor: pointer"/>
             </el-icon>
           </template>
         </el-input>
@@ -33,14 +46,16 @@
             </el-icon>
           </template>
         </el-input>
-        <img src="http://localhost:3000/api/captcha" @click="refreshCaptcha" ref="captcha" alt="验证码" class="captcha-img">
+        <img
+            :src="captchaUrl"
+            @click="refreshCaptcha"
+            alt="验证码"
+            class="captcha-img"
+            style="cursor: pointer; border: 1px solid #ddd; border-radius: 4px;"
+        >
       </el-form-item>
       <el-form-item>
-        <div class="button">
-          <el-button type="primary" @click="handleLogin" class="login-button">登录</el-button>
-          <el-button type="info" @click="handleRecent" class="login-button">重置</el-button>
-        </div>
-
+        <el-button type="primary" @click="handleLogin" class="login-button">登录</el-button>
       </el-form-item>
       <el-form-item>
         <el-link @click="goToRegister">没有账号？去注册</el-link>
@@ -50,44 +65,92 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
-import {useStore} from 'vuex';
-import {login} from '@/api/auth';
-import {Lock, Unlock, User} from '@element-plus/icons-vue';
-import {ElMessage} from 'element-plus';
+import {getCaptcha, login} from '@/api/auth';
+import {Lock, Unlock, User,  View, Hide} from '@element-plus/icons-vue';
 import Particles from "@/components/Particles.vue";
+import {ElMessage} from "element-plus";
+import store from '@/store';
+import {validationRules} from "@/utils/validationRules";
 
 const router = useRouter();
-const store = useStore();
-const formRef = ref(null);
+
+// 登录表单数据
 const loginForm = ref({
   username: '',
   password: '',
   captcha: ''
 });
+const passwordVisible = ref(false);
+const passwordType = ref('password');
 
-
-// 处理验证码
-const refreshCaptcha = () => {
-  this.$refs.captcha.src = `http://localhost:3000/api/captcha?t=${Date.now()}`;
+//切换密码可见性
+const togglePasswordVisibility = () => {
+  passwordVisible.value = !passwordVisible.value;
+  passwordType.value = passwordVisible.value ? 'text' : 'password';
 };
 
+// 验证码 URL
+const captchaUrl = ref('');
 
-// 用户名，密码，验证码element-plus验证规则
-const LoginRules = {
-  username: [
-    {required: true, message: '请输入用户名', trigger: 'blur'},
-    {min: 3, max: 10, message: '用户名长度在 3 到 10 个字符', trigger: 'blur'}
-  ],
-  password: [
-    {required: true, message: '请输入密码', trigger: 'blur'},
-    {min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur'}
-  ],
-  captcha: [
-    {required: true, message: '请输入验证码', trigger: 'blur'},
-    {min: 4, max: 4, message: '验证码长度为 4 个字符', trigger: 'blur'}
-  ]
+// 用户名，密码，验证码 element-plus 验证规则
+const LoginRules = validationRules
+
+// 声明 formRef 并绑定到 el-form 元素
+const formRef = ref(null);
+
+const handleLogin = async () => {
+  formRef.value.validate(async (valid) => {
+    if (!valid) return;
+    try {
+      const loginData = {
+        username: loginForm.value.username,
+        password: loginForm.value.password,
+        captcha: loginForm.value.captcha,
+      };
+
+      const {data} = await login(loginData);
+      if (data.message === '登录成功') {
+        await store.dispatch('login', {token: data.token, user: data.user});
+        showSuccessMessage('登录成功');
+        await router.push('/home');
+      } else {
+        showErrorMessage(data.message);
+        refreshCaptcha(); // 刷新验证码
+      }
+    } catch (error) {
+      console.error(error);
+      showErrorMessage('登录失败，请稍后重试！');
+      refreshCaptcha(); // 刷新验证码
+    }
+  });
+};
+
+const goToRegister = () => {
+  router.push('/register');
+};
+
+const refreshCaptcha = async () => {
+  try {
+    const response = await getCaptcha();
+    const base64Image = arrayBufferToBase64(response.data);
+    captchaUrl.value = `data:image/svg+xml;base64,${base64Image}`;
+  } catch (error) {
+    console.error('获取验证码失败', error);
+    showErrorMessage('获取验证码失败，请稍后重试');
+  }
+};
+
+// 将 ArrayBuffer 转换为 Base64 字符串
+const arrayBufferToBase64 = (buffer) => {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 };
 
 // 封装成功提示信息函数
@@ -106,25 +169,13 @@ const showErrorMessage = (message) => {
   });
 };
 
-const handleLogin = async () => {
-  const success = await store.dispatch('login', loginForm.value);
-
-  if (success) {
-    showSuccessMessage('登录成功')
-    router.push('/home');
-  } else {
-    showErrorMessage('登录失败，请检查用户名、密码或验证码')
-  }
-
-};
-
-const goToRegister = () => {
-  router.push('/register');
-};
+// 初始化时获取验证码
+onMounted(() => {
+  refreshCaptcha();
+});
 </script>
 
 <style scoped lang="scss">
-
 .Particles {
   position: fixed;
   top: 0;
@@ -136,7 +187,8 @@ const goToRegister = () => {
 }
 
 .login-container {
-  width: 350px; /* 设置合适的宽度 */
+  width: 400px;
+  margin: 100px auto;
   padding: 30px;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
@@ -154,6 +206,7 @@ const goToRegister = () => {
   }
 
   .login-form {
+    margin-right: 30px;
     .el-form-item {
       margin-bottom: 20px;
     }
@@ -168,22 +221,15 @@ const goToRegister = () => {
       }
 
       .captcha-img {
-        height: 40px;
+        width: 100px;
+        height: 30px;
         cursor: pointer;
       }
     }
   }
 
-  .button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .login-button {
-     width: 100px;
-      margin-right: 10px;
-    }
+  .login-button {
+    width: 100%;
   }
-
 }
 </style>

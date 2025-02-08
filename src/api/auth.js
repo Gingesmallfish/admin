@@ -16,3 +16,8 @@ export const getCaptcha = () => {
         responseType: 'arraybuffer'
     });
 };
+
+// 退出登录
+export const logoutApi = () => {
+    return axios.post('/api/logout');
+};
