@@ -13,15 +13,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { login, getCaptcha } from '@/api/auth';
-import { ElMessage } from 'element-plus';
+import {onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {ElMessage} from 'element-plus';
 import store from '@/store';
-import Particles from '@/components/Particles.vue';
-import LoginForm from '@/components/Auth/LoginForm.vue';
+import Particles from "@/components/Particles.vue";
+import LoginForm from "@/components/Auth/LoginForm.vue";
+import {useCaptcha} from '@/utils/Captcha.js';
+import {login} from "@/api/auth"; // 导入验证码逻辑
+
+const {captchaUrl, refreshCaptcha} = useCaptcha(); // 使用验证码逻辑
+
 const router = useRouter();
-const captchaUrl = ref('');
 
 
 const props = defineProps({
@@ -32,63 +35,34 @@ const props = defineProps({
   }
 })
 
-
-// 切换验证码
-const refreshCaptcha = async () => {
-  try {
-    const response = await getCaptcha();
-    const base64Image = arrayBufferToBase64(response.data);
-    captchaUrl.value = `data:image/svg+xml;base64,${base64Image}`;
-  } catch (error) {
-    console.error('获取验证码失败', error);
-    ElMessage.error('获取验证码失败，请稍后重试');
-  }
+// 使用 .then() 和 .catch() 处理登录逻辑
+const handleSubmit = (loginData) => {
+  login(loginData)
+      .then((response) => {
+        const {data} = response;
+        if (data.message === '登录成功') {
+          const {token, user} = data;
+          store.dispatch('login', {token, user});
+          ElMessage.success('登录成功');
+          router.push('/home');
+        } else {
+          ElMessage.error(data.message);
+          refreshCaptcha(); // 登录失败，刷新验证码
+        }
+      })
+      .catch((error) => {
+        console.error('登录失败:', error);
+        ElMessage.error('登录失败，请稍后重试！');
+      });
 };
 
-// 将 ArrayBuffer 转换为 Base64 字符串
-const arrayBufferToBase64 = (buffer) => {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-};
 
-// 初始化时获取验证码
 onMounted(() => {
-  refreshCaptcha();
+  refreshCaptcha(); // 初始化时获取验证码
 });
 
+
 refreshCaptcha()
-
-
-// 提交登录
-const handleSubmit = async (loginData) => {
-  try {
-    const { data } = await login(loginData);
-    if (data.message === '登录成功') {
-      const { token, user } = data;
-      await store.dispatch('login', { token, user });
-      ElMessage.success('登录成功');
-
-      const redirectPath = store.getters.getRedirectPath;
-      if (redirectPath) {
-        await router.push(redirectPath);
-        store.dispatch('setRedirectPath', null); // 清空重定向路径
-      } else {
-        await router.push('/home');
-      }
-    } else {
-      ElMessage.error(data.message);
-    }
-  } catch (error) {
-    console.error('登录失败:', error);
-    ElMessage.error('登录失败，请稍后重试！');
-  }
-};
-
 
 const gotoRegister = () => {
   router.push('/register');

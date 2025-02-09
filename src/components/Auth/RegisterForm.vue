@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="registerForm" :rules="RegisterRules" ref="formRef" label-width="80px" class="register-form">
+  <el-form :model="registerForm" :rules="rules" ref="formRef" label-width="80px" class="register-form">
     <el-form-item label="用户名" prop="username">
       <el-input v-model="registerForm.username" placeholder="请输入用户名">
         <template #prefix>
@@ -41,13 +41,13 @@
           </el-icon>
         </template>
       </el-input>
-      <Captcha :captchaUrl="captchaUrl" @refresh-captcha="$emit('refresh-captcha')" />
+      <Captcha :captchaUrl="captchaUrl" @refresh-captcha="emit('refresh-captcha')"></Captcha>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="handleRegister" class="register-button">注册</el-button>
+      <el-button type="primary" @click="handleRegister" class="register-button">{{ props.button }}</el-button>
     </el-form-item>
     <el-form-item>
-      <el-link @click="$emit('go-to-login')">已有账号？去登录</el-link>
+      <el-link @click="$emit('go-to-login')">{{ props.goToLogin }}</el-link>
     </el-form-item>
   </el-form>
 </template>
@@ -57,11 +57,24 @@ import { ref } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 import { register } from '@/api/auth';
 import { ElMessage } from 'element-plus';
-import Captcha from '@/components/Auth/Captcha.vue';
 import { Lock, Unlock, User } from '@element-plus/icons-vue';
+import Captcha from "@/components/Auth/Captcha.vue";
+import {RegisterRules} from '@/utils/validationRules';
+
+
+const rules = RegisterRules;
 
 const props = defineProps({
-  captchaUrl: String
+  captchaUrl: String,
+  button: {
+    type: String,
+    default: '注册'
+  },
+  // 注册按钮
+  goToLogin: {
+    type: String,
+    default: '没有账号？去登录'
+  }
 });
 
 const emit = defineEmits(['refresh-captcha', 'go-to-login']);
@@ -76,35 +89,7 @@ const registerForm = ref({
 
 const formRef = ref(null);
 
-const validateConfirmPassword = (rule, value, callback) => {
-  if (value !== registerForm.value.password) {
-    callback(new Error('两次输入的密码不一致'));
-  } else {
-    callback();
-  }
-};
 
-const RegisterRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 10, message: '用户名长度在 3 到 10 个字符', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
-  ],
-  role: [
-    { required: true, message: '请选择用户角色', trigger: 'change' }
-  ],
-  captcha: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { min: 4, max: 4, message: '验证码长度为 4 个字符', trigger: 'blur' }
-  ]
-};
 
 const handleRegister = async () => {
   formRef.value.validate(async (valid) => {
@@ -152,6 +137,12 @@ const handleRegister = async () => {
     .el-input {
       flex: 1;
       margin-right: 10px;
+    }
+
+    .captcha-img {
+      width: 100px;
+      height: 30px;
+      cursor: pointer;
     }
   }
 

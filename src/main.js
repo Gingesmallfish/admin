@@ -1,6 +1,6 @@
 import {createApp} from 'vue'
 import App from './App.vue'
-import ElementPlus, {ElMessage} from 'element-plus'
+import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import router from './router'
@@ -15,10 +15,17 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 
-
-
 app.use(Particles)
 app.use(ElementPlus)
 app.use(store)
 app.use(router)
 app.mount('#app')
+
+
+
+// 应用加载时检查登录状态
+if (!store.getters.isLoggedIn) {
+  router.push('/login');
+} else {
+  router.push('/home');
+}

@@ -1,4 +1,4 @@
-import { createStore } from 'vuex';
+import {createStore} from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
 const store = createStore({
@@ -41,7 +41,8 @@ const store = createStore({
   },
   plugins: [
     createPersistedState({
-      paths: ['token', 'user']
+      paths: ['token', 'user'],
+      storage: window.localStorage
     })
   ]
 });

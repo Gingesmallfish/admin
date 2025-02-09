@@ -98,6 +98,12 @@ const handleSubmit = () => {
     }
   });
 };
+
+
+// 关掉浏览器直接删除token
+window.addEventListener('beforeunload' ,() => {
+  localStorage.removeItem('token')
+})
 </script>
 
 <style scoped lang="scss">

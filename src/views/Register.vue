@@ -5,7 +5,7 @@
   <div class="center">
     <div class="register-container">
       <div class="register-header">
-        <h1>教务管理系统注册</h1>
+        <h1>{{ props.title }}</h1>
       </div>
       <RegisterForm :captchaUrl="captchaUrl" @refresh-captcha="refreshCaptcha" @go-to-login="goToLogin" />
     </div>
@@ -13,39 +13,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+
 import { onMounted } from 'vue';
-import { getCaptcha } from '@/api/auth';
-import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import Particles from "@/components/Particles.vue";
 import RegisterForm from "@/components/Auth/RegisterForm.vue";
-import router from "@/router";
+import { useCaptcha } from '@/utils/Captcha.js'; // 导入验证码逻辑
 
-const captchaUrl = ref('');
+const { captchaUrl, refreshCaptcha } = useCaptcha(); // 使用验证码逻辑
 
-const refreshCaptcha = async () => {
-  try {
-    const response = await getCaptcha();
-    const base64Image = arrayBufferToBase64(response.data);
-    captchaUrl.value = `data:image/svg+xml;base64,${base64Image}`;
-  } catch (error) {
-    console.error('获取验证码失败:', error);
-    ElMessage.error('获取验证码失败，请稍后重试');
+const router = useRouter();
+
+const props = defineProps({
+  title: {
+    type: String,
+    default: '教务管理系统注册'
   }
-};
+});
 
-const arrayBufferToBase64 = (buffer) => {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-};
 
 onMounted(() => {
-  refreshCaptcha();
+  refreshCaptcha(); // 初始化时获取验证码
 });
 
 const goToLogin = () => {
