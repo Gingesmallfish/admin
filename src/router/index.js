@@ -1,22 +1,16 @@
-// router/index.js
-import {createRouter, createWebHashHistory} from 'vue-router';
-import Login from '@/views/Login.vue'; // 登录页面组件
-import Home from '@/views/home/Home.vue'; // 主页页面组件
-import Register from '@/views/Register.vue'; // 注册页面组件
+import { createRouter, createWebHashHistory } from 'vue-router';
+import Login from '@/views/Login.vue';
+import Home from '@/views/home/Home.vue';
+import Register from '@/views/Register.vue';
 import NotFound from '@/NotFound/404.vue';
 import store from '@/store';
-import {ElMessage} from 'element-plus';
+import { ElMessage } from 'element-plus';
 
 const routes = [
-  {
-    path: '/',
-    redirect: '/login'
-  },
   {
     path: '/login',
     name: 'Login',
     component: Login,
-
   },
   {
     path: '/home',
@@ -29,13 +23,11 @@ const routes = [
     name: 'Register',
     component: Register
   },
-
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: NotFound
   }
-
 ];
 
 const router = createRouter({
@@ -43,14 +35,22 @@ const router = createRouter({
   routes
 });
 
-// 添加全局前置守卫
+// 合并后的全局路由守卫
+
+// 合并后的全局路由守卫
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !store.getters.isLoggedIn) {
-    // 如果要访问需要登录的页面且用户未登录
-    ElMessage.error('您没有登录权限，请返回登录页面，如果没有账号你可以选择注册账号');
-    next('/login'); // 重定向到登录页面
+    // 如果目标路由需要登录，但用户未登录
+    ElMessage.error('您还没有权限，请登录后访问'); // 弹出提示信息
+    next(false); // 阻止跳转
+  } else if (store.getters.isLoggedIn && to.path === '/login') {
+    // 如果用户已登录，但尝试访问登录页面，则重定向到主页
+    next('/home');
+  } else if (!store.getters.isLoggedIn && to.path !== '/login' && to.path !== '/register') {
+    // 如果用户未登录且当前路径不是登录或注册页面，则跳转到登录页面
+    next('/login');
   } else {
-    next(); // 继续路由跳转
+    next(); // 其他情况正常跳转
   }
 });
 

@@ -1,11 +1,11 @@
-// store/index.js
 import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
 const store = createStore({
   state: {
     token: null,
-    user: null
+    user: null,
+    redirectPath: null // 添加重定向路径
   },
   mutations: {
     login(state, { token, user }) {
@@ -15,6 +15,9 @@ const store = createStore({
     logout(state) {
       state.token = null;
       state.user = null;
+    },
+    setRedirectPath(state, path) {
+      state.redirectPath = path; // 设置重定向路径
     }
   },
   actions: {
@@ -23,19 +26,23 @@ const store = createStore({
     },
     logout({ commit }) {
       commit('logout');
+    },
+    setRedirectPath({ commit }, path) {
+      commit('setRedirectPath', path);
     }
   },
   getters: {
     isLoggedIn(state) {
       return !!state.token;
+    },
+    getRedirectPath(state) {
+      return state.redirectPath; // 获取重定向路径
     }
   },
-  // 持久化存储
   plugins: [
-      createPersistedState({
-        // 指定要持久化的 state 字段
-        paths: ['token', 'user']
-      })
+    createPersistedState({
+      paths: ['token', 'user']
+    })
   ]
 });
 
