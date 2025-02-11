@@ -5,7 +5,6 @@ import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import router from './router'
 import store from './store'
-import './styles/main.scss';
 import Particles from "vue3-particles";
 
 const app = createApp(App)
@@ -27,5 +26,5 @@ app.mount('#app')
 if (!store.getters.isLoggedIn) {
   router.push('/login');
 } else {
-  router.push('/home');
+  router.push('/admin');
 }

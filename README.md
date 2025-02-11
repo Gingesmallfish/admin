@@ -33,3 +33,7 @@ project/
 │   ├── db.js
 │   └── captcha.js
 └── app.js          # 主应用文件
+
+
+
+"vue3-particles": "^1.43.1",

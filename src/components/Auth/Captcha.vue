@@ -4,7 +4,7 @@
       @click="$emit('refresh-captcha')"
       alt="验证码"
       class="captcha-img"
-      style="cursor: pointer; border: 1px solid #ddd; border-radius: 4px;"
+      style="cursor: pointer; border-radius: 4px;"
   >
 </template>
 

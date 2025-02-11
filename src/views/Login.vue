@@ -12,16 +12,15 @@
   </div>
 </template>
 
+
 <script setup>
 import {onMounted} from 'vue';
 import {useRouter} from 'vue-router';
 import {ElMessage} from 'element-plus';
 import store from '@/store';
-import Particles from "@/components/Particles.vue";
 import LoginForm from "@/components/Auth/LoginForm.vue";
 import {useCaptcha} from '@/utils/Captcha.js';
-import {login} from "@/api/auth"; // 导入验证码逻辑
-
+import {login} from "@/api/auth";
 const {captchaUrl, refreshCaptcha} = useCaptcha(); // 使用验证码逻辑
 
 const router = useRouter();
@@ -38,13 +37,13 @@ const props = defineProps({
 // 使用 .then() 和 .catch() 处理登录逻辑
 const handleSubmit = (loginData) => {
   login(loginData)
-      .then((response) => {
-        const {data} = response;
+      .then((res) => {
+        const {data} = res;
         if (data.message === '登录成功') {
           const {token, user} = data;
           store.dispatch('login', {token, user});
           ElMessage.success('登录成功');
-          router.push('/home');
+          router.push('/admin');
         } else {
           ElMessage.error(data.message);
           refreshCaptcha(); // 登录失败，刷新验证码
@@ -55,7 +54,6 @@ const handleSubmit = (loginData) => {
         ElMessage.error('登录失败，请稍后重试！');
       });
 };
-
 
 onMounted(() => {
   refreshCaptcha(); // 初始化时获取验证码

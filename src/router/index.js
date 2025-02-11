@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import Login from '@/views/Login.vue';
-import Home from '@/views/home/Home.vue';
+import Admin from '@/Layouts/admin.vue';
 import Register from '@/views/Register.vue';
 import NotFound from '@/NotFound/404.vue';
 import store from '@/store';
@@ -13,9 +13,9 @@ const routes = [
     component: Login,
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: Home,
+    path: '/admin',
+    name: 'admin',
+    component: Admin,
     meta: { requiresAuth: true } // 添加元信息，表示该路由需要登录才能访问
   },
   {
@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
     next('/login'); // 重定向到登录页面
   } else if (store.getters.isLoggedIn && to.path === '/login') {
     // 如果用户已登录，但尝试访问登录页面，则重定向到主页
-    next('/home');
+    next('/admin');
   } else {
     next(); // 其他情况正常跳转
   }

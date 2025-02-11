@@ -1,7 +1,4 @@
 <template>
-  <div class="Particles">
-    <Particles />
-  </div>
   <div class="center">
     <div class="register-container">
       <div class="register-header">
@@ -16,7 +13,6 @@
 
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import Particles from "@/components/Particles.vue";
 import RegisterForm from "@/components/Auth/RegisterForm.vue";
 import { useCaptcha } from '@/utils/Captcha.js'; // 导入验证码逻辑
 
