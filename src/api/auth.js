@@ -2,22 +2,18 @@ import axios from './axios';
 
 // 登录请求
 export const login = (data) => {
-    return axios.post('/api/login', data);
+    return axios.post('/api/user/login', data);
 };
 
 // 注册请求
 export const register = (data) => {
-    return axios.post('/api/register', data);
+    return axios.post('/api/user/register', data);
 };
 
 // 获取验证码
 export const getCaptcha = () => {
-    return axios.get('/api/captcha', {
+    return axios.get('/api/user/captcha', {
         responseType: 'arraybuffer'
     });
 };
 
-// 退出登录
-export const logoutApi = () => {
-    return axios.post('/api/logout');
-};

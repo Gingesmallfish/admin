@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="registerForm" :rules="rules" ref="formRef" label-width="80px" class="register-form">
+  <el-form :model="registerForm" :rules="rulesForm" ref="formRef" label-width="80px" class="register-form">
     <!-- 用户名 -->
     <el-form-item label="用户名" prop="username">
       <el-input v-model="registerForm.username" placeholder="请输入用户名">
@@ -33,11 +33,42 @@
       </el-input>
     </el-form-item>
 
+    <!-- 姓名 -->
+    <el-form-item label="姓名" prop="name">
+      <el-input v-model="registerForm.name" placeholder="请输入姓名">
+        <template #prefix>
+          <el-icon>
+            <User />
+          </el-icon>
+        </template>
+      </el-input>
+    </el-form-item>
+
+    <!-- 性别 -->
+    <el-form-item label="性别" prop="sex">
+      <el-radio-group v-model="registerForm.sex">
+        <el-radio label="male">男</el-radio>
+        <el-radio label="female">女</el-radio>
+      </el-radio-group>
+    </el-form-item>
+
+    <!-- 手机号码 -->
+    <el-form-item label="手机号码" prop="phone">
+      <el-input v-model="registerForm.phone" placeholder="请输入手机号码">
+        <template #prefix>
+          <el-icon>
+            <Phone />
+          </el-icon>
+        </template>
+      </el-input>
+    </el-form-item>
+
     <!-- 用户角色 -->
     <el-form-item label="用户角色" prop="role">
       <el-select v-model="registerForm.role" placeholder="请选择用户角色">
         <el-option label="学生" value="1" />
         <el-option label="教师" value="2" />
+        <el-option label="管理员" value="3" />
       </el-select>
     </el-form-item>
 
@@ -70,8 +101,14 @@ import { ref } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 import { register } from '@/api/auth';
 import { ElMessage } from 'element-plus';
-import { Lock, Unlock, User } from '@element-plus/icons-vue';
+import { Lock, Unlock, User, Phone } from '@element-plus/icons-vue';
 import Captcha from "@/components/Auth/Captcha.vue";
+import {rules} from "@/utils/validationRules";
+// 引入验证规则
+
+
+const rulesForm = rules
+
 
 // props 和事件定义
 const props = defineProps({
@@ -93,48 +130,20 @@ const registerForm = ref({
   username: '',
   password: '',
   confirmPassword: '',
+  name: '',
+  sex: '',
+  phone: '',
   role: '',
   captcha: '',
 });
 
 
 
-// 注册验证码
-const validateConfirmPassword = (rule, value, callback) => {
-  if (value !== registerForm.value.password) {
-    callback(new Error('两次输入的密码不一致'));
-  } else {
-    callback();
-  }
-};
-
-const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 10, message: '用户名长度在 3 到 10 个字符', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
-  ],
-  role: [
-    { required: true, message: '请选择用户角色', trigger: 'change' }
-  ],
-  captcha: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { min: 4, max: 4, message: '验证码长度为 4 个字符', trigger: 'blur' }
-  ]
-};
 
 
 
 // 表单引用
 const formRef = ref(null);
-
 
 const handleRegister = () => {
   formRef.value.validate((valid) => {
@@ -142,8 +151,17 @@ const handleRegister = () => {
       return;
     }
 
-    const { username, password, confirmPassword, role, captcha } = registerForm.value;
-    const registerData = { username, password, confirmPassword, role: parseInt(role), captcha };
+    const { username, password, confirmPassword, name, sex, phone, role, captcha } = registerForm.value;
+    const registerData = {
+      username,
+      password,
+      confirmPassword,
+      name,
+      sex,
+      phone,
+      role: parseInt(role),
+      captcha
+    };
 
     // 使用 then 和 catch 处理异步操作
     register(registerData)
@@ -169,8 +187,6 @@ const refreshCaptcha = () => {
   emit('refresh-captcha');
 };
 </script>
-
-
 
 <style scoped lang="scss">
 .register-form {

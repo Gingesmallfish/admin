@@ -2,11 +2,18 @@ import {createStore} from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
 const store = createStore({
-  state: {
-    token: null,
+  state() {
+    return {
+      token: null,
     user: null,
-    redirectPath: null // 添加重定向路径
+    redirectPath: null, // 添加重定向路径
+
+      asideWidth: "250px"
+    }
+
   },
+
+
   mutations: {
     login(state, { token, user }) {
       state.token = token;
@@ -16,6 +23,15 @@ const store = createStore({
       state.token = null;
       state.user = null;
     },
+
+     // 展开/缩起侧边
+        handleAsideWidth(state){
+            state.asideWidth = state.asideWidth === "250px" ? "64px" : "250px"
+        },
+
+     setUserInfo(state, userInfo) {
+            state.userInfo = userInfo;
+        },
     setRedirectPath(state, path) {
       state.redirectPath = path; // 设置重定向路径
     }

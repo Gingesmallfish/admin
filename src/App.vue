@@ -8,7 +8,5 @@ body, html {
   padding: 0;
   background-color: #ffffff;
 }
-
-
 </style>
 

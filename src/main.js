@@ -6,6 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import router from './router'
 import store from './store'
 import Particles from "vue3-particles";
+import '@/assets/tailwindcss.scss'
 
 const app = createApp(App)
 // 注册 ElementPlus 图标

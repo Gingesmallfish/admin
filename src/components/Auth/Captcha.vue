@@ -3,8 +3,7 @@
       :src="captchaUrl"
       @click="$emit('refresh-captcha')"
       alt="验证码"
-      class="captcha-img"
-      style="cursor: pointer; border-radius: 4px;"
+      class="w-2/5 h-8 cursor-pointer "
   >
 </template>
 
@@ -19,9 +18,5 @@ const emit = defineEmits(['refresh-captcha']);
 </script>
 
 <style scoped lang="scss">
-.captcha-img {
-  width: 100px;
-  height: 30px;
-  cursor: pointer;
-}
+
 </style>
